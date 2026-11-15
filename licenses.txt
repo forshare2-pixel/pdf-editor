@@ -1,0 +1,58 @@
+PDF 편집기 — 오픈 소스 고지
+
+이 프로그램에는 아래 오픈 소스 구성요소가 들어 있습니다. 각 라이선스 전문은 설치 폴더의
+licenses\ 아래(구성요소 이름별 폴더)에 있습니다.
+
+편집 화면
+  EmbedPDF 2.15.1 (@embedpdf/snippet, engines, models) ........ MIT
+  PDFium (EmbedPDF WebAssembly) ................................ BSD-3-Clause + 동봉 제3자 고지(LICENSE.pdfium)
+  Pretendard ................................................... SIL Open Font License 1.1 (Reserved Font Name "Pretendard")
+
+PDF 처리
+  Python 3.12 .................................................. PSF License 2.0
+  pikepdf 10.17.0 .............................................. MPL-2.0 (소스: https://github.com/pikepdf/pikepdf/tree/v10.17.0)
+  qpdf 12.4.2 .................................................. Apache-2.0
+  pypdfium2 5.14.0 + PDFium .................................... Apache-2.0 또는 BSD-3-Clause / PDFium BSD-3-Clause + 제3자
+  fontTools 4.67.0 ............................................. MIT
+  Brotli 1.2.0 ................................................. MIT
+  Pillow 12.3.0 (+ libjpeg-turbo, libpng, libtiff, libwebp, libavif, openjpeg, FreeType(FTL), lcms2, zlib, HarfBuzz)
+                                                                 MIT-CMU + 각 라이브러리 라이선스
+  tzdata ....................................................... Apache-2.0
+  packaging .................................................... Apache-2.0 / BSD-2-Clause
+  OpenSSL 3 (Python 표준 라이브러리) ............................ Apache-2.0
+  libffi ....................................................... MIT
+
+창
+  pywebview 6.2.1 .............................................. BSD-3-Clause
+  pythonnet 3.2.1, clr_loader .................................. MIT
+  bottle, proxy_tools, cffi, pycparser, typing_extensions ...... MIT / BSD / PSF
+  Microsoft WebView2 SDK ....................................... Microsoft WebView2 SDK 라이선스(재배포 허용 파일)
+  Microsoft Visual C++ 런타임 .................................. Microsoft 재배포 가능 파일
+  PyInstaller 부트로더 6.22.3 ................................... GPL-2.0 + 부트로더 예외
+
+이 프로그램에는 상용 글꼴이 들어 있지 않습니다. a시네마(㈜아시아소프트) 글꼴은 사용자의 컴퓨터에
+설치되어 있을 때만 그 위치에서 읽어 씁니다.
+
+공개판 별표: 앱용으로 새로 작성한 벡터 경로입니다. 수업 배포 '강조' 컬렉션은 포함하지 않습니다.
+설치 프로그램: Inno Setup (https://jrsoftware.org/isinfo.php), Inno Setup License.
+PyInstaller 소스 및 부트로더 예외: https://github.com/pyinstaller/pyinstaller/tree/v6.22.3
+qpdf 소스: https://github.com/qpdf/qpdf/tree/v12.4.2
+Pretendard 원본: https://github.com/orioncactus/pretendard (SIL OFL 1.1 전문 동봉)
+EmbedPDF 소스: https://github.com/embedpdf/embed-pdf-viewer (MIT 전문과 PDFium 제3자 고지 동봉)
+pywebview 소스: https://github.com/r0x0r/pywebview/tree/6.2.1
+버전별 라이선스 목록은 licenses/INDEX.txt를 참조하십시오. lxml 6.1.3 (BSD-3-Clause) 및 libxml2/libxslt 고지를 licenses/lxml/에 동봉합니다. PyMuPDF는 포함하지 않습니다.
+
+2026-11-12 추가 자산
+  Noto Sans Korean Regular/Bold, version 1.000 ................. Apache License 2.0
+    Copyright © 2014 Adobe Systems Incorporated. Unmodified font files.
+    licenses/NotoSansKR/LICENSE.txt 및 NOTICE.md 참조.
+    원본: https://github.com/notofonts/noto-cjk (1.002 이전 릴리스)
+    이 번들의 1.000 바이너리는 Apache-2.0이며, 이후 OFL 릴리스와 구분합니다.
+  Adobe CMaps (PDF.js packed cmaps) ............................ BSD-3-Clause
+    Copyright 1990-2009 Adobe Systems Incorporated. licenses/Adobe-CMaps/LICENSE 참조.
+  Foxit standard fonts (PDF.js, PDFium Authors) ................ BSD-3-Clause
+    Copyright 2014 PDFium Authors. licenses/PDFjs-standard-fonts/LICENSE_FOXIT 참조.
+  Liberation Sans (PDF.js standard fonts) ...................... SIL OFL 1.1
+    Copyright 2010 Google Corporation; Copyright 2012 Red Hat, Inc.
+    Reserved Font Names: Arimo, Tinos, Cousine, Liberation.
+    licenses/PDFjs-standard-fonts/LICENSE_LIBERATION 참조.
