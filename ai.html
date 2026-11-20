@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>AI 연결 · PDF 편집기</title>
+<meta name="description" content="Claude 같은 AI 도우미가 PC의 PDF를 읽고 주석을 넣도록 PDF 편집기에 연결하는 방법.">
+<link rel="icon" href="favicon.ico" sizes="48x48">
+<link rel="icon" href="icon-192.png" type="image/png">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header class="top"><div class="wrap">
+ <a class="brand" href="./"><img src="icon-192.png" alt="">PDF 편집기</a>
+ <nav><a href="./#features">기능</a><a href="./#download">내려받기</a><a href="ai.html">AI 연결</a><a href="privacy.html">개인정보</a></nav>
+</div></header>
+<main class="wrap doc">
+<h1>AI 연결</h1>
+<p>Windows용 PDF 편집기 1.1.0부터 <code>PDFEditorCLI.exe</code>가 함께 설치됩니다. Claude Desktop, Claude Code처럼 MCP를 지원하는 AI 도우미에 연결하면, AI가 PC에 있는 PDF를 읽고 형광펜·밑줄·메모·도형·도장을 넣고 쪽을 정리한 뒤 결과를 그림으로 확인합니다. 저장한 파일은 PDF 편집기에서 그대로 열어 고칠 수 있습니다.</p>
+<ul>
+<li>원본은 덮어쓰지 않고 새 파일로 저장합니다.</li>
+<li>이 프로그램은 인터넷에 연결하지 않습니다. 다만 AI 도우미가 읽은 문서 내용은 그 AI 서비스로 전달되며, 그 서비스의 방침을 따릅니다.</li>
+<li>Android용에는 이 기능이 없습니다.</li>
+</ul>
+
+<h2>Claude Desktop에 연결</h2>
+<ol>
+<li>PDF 편집기 1.1.0 이상을 설치합니다.</li>
+<li>시작 메뉴에서 ‘명령 프롬프트’를 열고 아래 한 줄을 실행합니다.
+<pre><code>"%LOCALAPPDATA%\Programs\PDFEditor\PDFEditorCLI.exe" connect claude-desktop</code></pre></li>
+<li>Claude Desktop을 완전히 종료한 뒤(알림 영역 아이콘에서 종료) 다시 실행합니다. 도구 목록에 pdf-editor가 보이면 연결된 것입니다.</li>
+</ol>
+<p>Claude의 다른 설정은 그대로 두고, 바꾸기 전 설정 파일을 <code>claude_desktop_config.json.bak</code>으로 남깁니다. 연결을 지우려면 같은 명령에 <code>connect --remove claude-desktop</code>을 씁니다. 휴대용(zip)은 압축을 푼 폴더의 <code>PDFEditorCLI.exe</code>로 같은 명령을 실행합니다.</p>
+
+<h2>Claude Code와 그 밖의 프로그램</h2>
+<p>아래 명령이 붙여 넣을 내용을 출력합니다.</p>
+<pre><code>"%LOCALAPPDATA%\Programs\PDFEditor\PDFEditorCLI.exe" connect --print</code></pre>
+<ul>
+<li>Claude Code: 출력된 <code>claude mcp add …</code> 한 줄을 실행합니다.</li>
+<li>Cursor 등 다른 MCP 프로그램: 출력된 JSON을 그 프로그램의 MCP 설정(<code>mcpServers</code>)에 넣습니다.</li>
+<li>MCP를 쓰지 않는 도구는 <code>PDFEditorCLI.exe</code> 명령을 직접 실행합니다. 모든 명령은 결과를 JSON으로 출력합니다.</li>
+</ul>
+
+<h2>이렇게 시킬 수 있습니다</h2>
+<ul>
+<li>“문서\계약서.pdf에서 ‘위약금’이 나오는 곳을 모두 형광펜으로 칠하고 계약서_표시.pdf로 저장해 줘.”</li>
+<li>“이 PDF 3쪽 오른쪽 여백에 요약을 메모로 적어 줘.”</li>
+<li>“스캔본.pdf에서 빈 쪽을 지우고 2쪽을 오른쪽으로 돌려 줘.”</li>
+</ul>
+<p>파일은 전체 경로로 알려 주는 것이 가장 확실합니다.</p>
+
+<h2>도구와 명령</h2>
+<p>아래는 AI 도구를 직접 설정하거나 스크립트를 짜는 분을 위한 참고 자료입니다. 같은 내용이 설치 폴더의 <code>PDFEditorCLI-GUIDE.txt</code>에 들어 있습니다.</p>
+<h3 class="ref">좌표</h3>
+<ul>
+<li><strong>쪽 좌표</strong>(page points): 화면에 보이는 쪽(회전 적용) 기준, 왼쪽 위가 원점, x는 오른쪽, y는 아래로 증가, 단위 pt(1/72인치). <code>text</code>·<code>find</code>·<code>annotations</code>의 <code>bbox</code>, 변경 JSON의 <code>at</code>·<code>box</code>·<code>boxes</code>·<code>from</code>·<code>to</code>·<code>arrow_to</code>·<code>paths</code>가 이 좌표입니다. <code>render</code> PNG도 같은 방향이며 픽셀 = pt × scale입니다.</li>
+<li><strong>PDF 좌표</strong>(PDF user space): PDF 파일 자체의 좌표, 회전 전 쪽의 왼쪽 아래가 원점, y는 위로 증가. <code>pdf_rect</code>, 주석의 <code>rect</code>, 변경 JSON에서 직접 주는 <code>rect</code>·<code>quads</code>·<code>line</code>·<code>ink.strokes</code>·<code>callout.arrow</code>가 이 좌표입니다.</li>
+<li>쪽 번호는 1부터 셉니다.</li>
+</ul>
+<h3 class="ref">명령(도구) 목록</h3>
+<p>괄호 안은 MCP 도구 이름입니다.</p>
+<h3 class="ref">info (pdf_info)</h3>
+<p>쪽 수, 쪽마다 보이는 크기(pt)·회전·주석 수.</p>
+<pre><code>PDFEditorCLI.exe info 안내문.pdf
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;page_count&quot;: 1, &quot;annotation_count&quot;: 0, &quot;pages&quot;: [{&quot;page&quot;: 1, &quot;width&quot;: 594.96, &quot;height&quot;: 841.92, &quot;rotation&quot;: 0, &quot;cropbox&quot;: [0.0, 0.0, 594.96, 841.92], &quot;annotations&quot;: 0}]}
+</code></pre>
+<h3 class="ref">text (pdf_text)</h3>
+<p>텍스트 줄과 위치. <code>--pages "1,3-5"</code>로 쪽을 고릅니다.</p>
+<pre><code>PDFEditorCLI.exe text 안내문.pdf --pages 1
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;pages&quot;: [{&quot;page&quot;: 1, &quot;lines&quot;: [{&quot;text&quot;: &quot;가을 학기 독서 모임 안내&quot;, &quot;bbox&quot;: [63.0, 74.28, 258.41, 98.37], &quot;pdf_rect&quot;: [63.0, 743.55, 258.41, 767.64]}]}]}
+</code></pre>
+<h3 class="ref">find (pdf_find)</h3>
+<p>문구 찾기. 띄어쓰기와 대소문자를 무시합니다(한국어 PDF는 추출한 글자에 띄어쓰기가 빠지는 일이 많습니다). 한 번 나온 것마다 줄 하나에 상자 하나를 돌려주고, 같은 쪽 안에서 위→아래 순서로 <code>occurrence</code> 번호를 붙입니다.</p>
+<pre><code>PDFEditorCLI.exe find 안내문.pdf &quot;중앙도서관 세미나실&quot;
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;count&quot;: 1, &quot;matches&quot;: [{&quot;page&quot;: 1, &quot;occurrence&quot;: 1, &quot;bboxes&quot;: [[390.75, 198.31, 481.25, 210.92]], &quot;pdf_rects&quot;: [[390.75, 631.0, 481.25, 643.61]]}]}
+</code></pre>
+<h3 class="ref">annotations (pdf_annotations)</h3>
+<p>기존 주석: <code>id</code>, <code>type</code>, <code>page</code>, <code>bbox</code>, <code>rect</code>, <code>contents</code>, 주요 스타일. 수정·삭제할 때 이 <code>id</code>를 씁니다.</p>
+<pre><code>PDFEditorCLI.exe annotations 결과.pdf
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;count&quot;: 1, &quot;annotations&quot;: [{&quot;id&quot;: &quot;obj:8:0&quot;, &quot;type&quot;: &quot;highlight&quot;, &quot;page&quot;: 1, &quot;bbox&quot;: [390.75, 198.31, 481.25, 210.92], &quot;rect&quot;: [390.75, 631.0, 481.25, 643.61], &quot;contents&quot;: &quot;&quot;, &quot;style&quot;: {&quot;fill_color&quot;: &quot;#FCDA51&quot;, &quot;opacity&quot;: 1.0}, &quot;editable&quot;: true}]}
+</code></pre>
+<p><code>id</code>는 그 파일 안에서만 유효합니다. 저장할 때 PDF 개체 번호가 다시 매겨지므로, 새로 저장한 파일을 고칠 때는 <code>annotations</code>로 <code>id</code>를 다시 읽습니다.</p>
+<h3 class="ref">render (pdf_render)</h3>
+<p>한 쪽을 주석까지 포함해 PNG로 그립니다. 명령줄은 <code>--out</code>이 필요하고, MCP는 그림을 응답에 넣으며 <code>out</code>을 주면 파일로도 저장합니다. <code>--scale</code> 기본값은 명령줄 2(144dpi), MCP 1.5입니다.</p>
+<pre><code>PDFEditorCLI.exe render 결과.pdf --page 1 --scale 1.5 --out 1쪽.png
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;page&quot;: 1, &quot;scale&quot;: 1.5, &quot;width_px&quot;: 893, &quot;height_px&quot;: 1263, &quot;out&quot;: &quot;C:\\작업\\1쪽.png&quot;}
+</code></pre>
+<h3 class="ref">apply (pdf_apply)</h3>
+<p>변경 JSON을 적용해 새 PDF로 저장합니다.</p>
+<pre><code>PDFEditorCLI.exe apply 안내문.pdf --changes 변경.json --out 결과.pdf
+PDFEditorCLI.exe apply 안내문.pdf --changes-json &quot;[{\&quot;type\&quot;:\&quot;highlight\&quot;,\&quot;page\&quot;:1,\&quot;text\&quot;:\&quot;독서 모임\&quot;}]&quot; --out 결과.pdf
+PDFEditorCLI.exe apply 안내문.pdf --changes 변경.json --in-place
+</code></pre>
+<pre><code class="language-json">{&quot;ok&quot;: true, &quot;out&quot;: &quot;C:\\작업\\결과.pdf&quot;, &quot;in_place&quot;: false, &quot;page_ops&quot;: 0, &quot;created&quot;: [{&quot;index&quot;: 0, &quot;type&quot;: &quot;highlight&quot;, &quot;id&quot;: &quot;obj:8:0&quot;, &quot;page&quot;: 1}], &quot;updated&quot;: [], &quot;deleted&quot;: [], &quot;page_count&quot;: 1}
+</code></pre>
+<ul>
+<li><code>--out</code>이 원본과 같은 파일이면 거부합니다. 원본에 저장하려면 <code>--out</code> 대신 <code>--in-place</code>를 줍니다.</li>
+<li><code>--author 이름</code>: 새 주석의 작성자. 주지 않으면 앱 환경 설정의 작성자를 씁니다.</li>
+<li>메모(타자기·텍스트 상자·콜아웃)를 만들면 <code>created</code>에 넣은 글꼴과 내장 여부(<code>fonts</code>)가 나옵니다.</li>
+<li>적용 뒤 <code>render</code>로 쪽을 그려 위치와 글자를 확인하는 것을 권장합니다.</li>
+</ul>
+<h3 class="ref">mcp</h3>
+<p>MCP 서버를 실행합니다. AI 프로그램이 직접 실행하므로 사람이 실행할 일은 없습니다. 표준 출력에는 프로토콜 메시지만 쓰고 기록은 표준 오류로 보냅니다.</p>
+<h3 class="ref">connect</h3>
+<p>위 "연결하기" 참조. <code>connect --print</code>, <code>connect claude-desktop</code>, <code>connect --remove claude-desktop</code>.</p>
+<h3 class="ref">변경 JSON</h3>
+<p>파일은 UTF-8입니다. 두 가지 형태가 있습니다.</p>
+<pre><code class="language-json">[ {변경}, {변경} ]
+</code></pre>
+<pre><code class="language-json">{ &quot;pages&quot;: [ {쪽 작업}, ... ], &quot;changes&quot;: [ {변경}, ... ] }
+</code></pre>
+<p>객체 형태에서는 쪽 작업을 먼저 순서대로 하고, 그 결과 문서에 주석 변경을 적용합니다. 각 쪽 작업의 쪽 번호는 앞 작업까지 반영된 문서 기준이고, <code>changes</code>의 쪽 번호는 모든 쪽 작업이 끝난 문서 기준입니다. 상대 경로(<code>file</code>, <code>image</code>)는 변경 파일이 있는 폴더 기준입니다(<code>--changes-json</code>은 현재 폴더 기준). 중간에 하나라도 실패하면 아무 파일도 쓰지 않습니다.</p>
+<h3 class="ref">공통 필드</h3>
+<table>
+<thead>
+<tr>
+<th>필드</th>
+<th>뜻</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>op</code></td>
+<td><code>create</code>(기본), <code>update</code>, <code>delete</code></td>
+</tr>
+<tr>
+<td><code>type</code></td>
+<td>아래 종류. 별칭: <code>rectangle</code>→<code>square</code>, <code>ellipse</code>→<code>circle</code>, <code>pen</code>→<code>ink</code>, <code>freetext</code>→<code>textbox</code></td>
+</tr>
+<tr>
+<td><code>page</code></td>
+<td>쪽 번호(만들 때 필수)</td>
+</tr>
+<tr>
+<td><code>contents</code></td>
+<td>메모 글(메모 종류는 필수, 다른 주석은 선택: 주석 내용으로 저장)</td>
+</tr>
+<tr>
+<td><code>style</code></td>
+<td>스타일(선택). 주지 않은 값은 종류별 기본값</td>
+</tr>
+<tr>
+<td><code>id</code></td>
+<td><code>update</code>·<code>delete</code>의 대상(<code>annotations</code>의 <code>id</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><code>style</code> 키: <code>text_color</code>, <code>border_color</code>, <code>fill_color</code>(<code>#RRGGBB</code> 또는 <code>null</code>), <code>border_width</code>(pt), <code>opacity</code>(0–1), <code>font_size</code>(pt), <code>font_family</code>, <code>line_spacing</code>(배수), <code>dash</code>(선 길이 배열, 예 <code>[3, 2]</code>).</p>
+<p>종류별 기본 스타일은 앱과 같습니다: 형광펜 <code>#FCDA51</code>, 밑줄 <code>#D32F2F</code>, 취소선 <code>#FF0000</code>, 메모 글자 <code>#2196F3</code> 13.5pt, 사각형 <code>#66BB6A</code> 1pt, 타원 <code>#EF5350</code> 2pt, 화살표 <code>#D32F2F</code> 2pt, 선 <code>#42A5F5</code> 2pt, 펜 <code>#42A5F5</code> 1pt.</p>
+<h3 class="ref">형광펜·밑줄·취소선 (<code>highlight</code>, <code>underline</code>, <code>strikeout</code>)</h3>
+<p>위치는 셋 중 하나로 줍니다.</p>
+<ul>
+<li><code>text</code>: 그 쪽에서 찾을 문구(띄어쓰기·대소문자 무시). 두 번 이상 나오면 <code>occurrence</code>(1부터, 위→아래)가 필요합니다. 없으면 실패하며 다른 위치로 대신하지 않습니다. 여러 줄에 걸치면 줄마다 한 영역이 됩니다.</li>
+<li><code>boxes</code>: 쪽 좌표 상자 목록 <code>[[x0, y0, x1, y1], ...]</code>.</li>
+<li><code>rect</code> + <code>quads</code>: PDF 좌표. <code>quads</code>는 영역마다 8개 수 <code>[x1,y1, x2,y2, x3,y3, x4,y4]</code>(왼쪽 위, 오른쪽 위, 왼쪽 아래, 오른쪽 아래).</li>
+</ul>
+<pre><code class="language-json">{&quot;type&quot;: &quot;highlight&quot;, &quot;page&quot;: 1, &quot;text&quot;: &quot;중앙도서관 세미나실&quot;}
+{&quot;type&quot;: &quot;underline&quot;, &quot;page&quot;: 2, &quot;text&quot;: &quot;마감&quot;, &quot;occurrence&quot;: 2}
+{&quot;type&quot;: &quot;highlight&quot;, &quot;page&quot;: 1, &quot;boxes&quot;: [[63, 300, 200, 312]], &quot;style&quot;: {&quot;fill_color&quot;: &quot;#80DEEA&quot;, &quot;opacity&quot;: 0.6}}
+</code></pre>
+<h3 class="ref">타자기 (<code>typewriter</code>)</h3>
+<p>테두리 없는 글. <code>at</code>: 왼쪽 위 쪽 좌표 <code>[x, y]</code>, <code>width</code>: 폭(pt). <code>width</code>를 빼면 오른쪽 여백까지 쓰고 긴 줄은 자동으로 나눕니다. 높이는 줄 수에 맞춰 정해집니다. <code>"wrap": true</code>면 폭에 맞게 앱의 줄바꿈 규칙으로 줄을 나눕니다(없으면 <code>contents</code>의 줄바꿈만 씁니다). <code>box</code>(쪽 좌표)나 <code>rect</code>(PDF 좌표)도 쓸 수 있습니다.</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;typewriter&quot;, &quot;page&quot;: 1, &quot;at&quot;: [330, 70], &quot;width&quot;: 220, &quot;contents&quot;: &quot;장소: 중앙도서관 3층&quot;, &quot;wrap&quot;: true}
+</code></pre>
+<h3 class="ref">텍스트 상자 (<code>textbox</code>)</h3>
+<p>테두리·바탕이 있는 상자. <code>box</code>: 쪽 좌표 <code>[x0, y0, x1, y1]</code>(또는 <code>rect</code>). 글이 넘치면 아래로 늘어납니다.</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;textbox&quot;, &quot;page&quot;: 1, &quot;box&quot;: [330, 110, 560, 160], &quot;contents&quot;: &quot;발제 순서는 첫 모임에서 정합니다.&quot;, &quot;style&quot;: {&quot;border_color&quot;: &quot;#2196F3&quot;}}
+</code></pre>
+<h3 class="ref">콜아웃 (<code>callout</code>)</h3>
+<p>화살표가 달린 상자. <code>box</code>(상자), <code>contents</code>, <code>arrow_to</code>: 화살표 끝 쪽 좌표 <code>[x, y]</code>(또는 PDF 좌표 <code>"callout": {"arrow": [x, y]}</code>).</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;callout&quot;, &quot;page&quot;: 1, &quot;box&quot;: [330, 260, 560, 300], &quot;contents&quot;: &quot;격주 진행&quot;, &quot;arrow_to&quot;: [300, 215]}
+</code></pre>
+<h3 class="ref">사각형·타원 (<code>square</code>, <code>circle</code>)</h3>
+<p><code>box</code>(쪽 좌표) 또는 <code>rect</code>(PDF 좌표).</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;square&quot;, &quot;page&quot;: 1, &quot;box&quot;: [60, 70, 262, 102]}
+{&quot;type&quot;: &quot;circle&quot;, &quot;page&quot;: 1, &quot;box&quot;: [385, 192, 488, 216], &quot;style&quot;: {&quot;border_width&quot;: 1.5}}
+</code></pre>
+<h3 class="ref">선·화살표 (<code>line</code>, <code>arrow</code>)</h3>
+<p><code>from</code>, <code>to</code>: 쪽 좌표. 화살표 머리는 <code>to</code> 쪽입니다. PDF 좌표로는 <code>"line": [x0, y0, x1, y1]</code>. 끝 모양은 <code>"line_ends": ["None", "ClosedArrow"]</code>처럼 줄 수 있습니다(<code>None</code>, <code>Square</code>, <code>Circle</code>, <code>Diamond</code>, <code>OpenArrow</code>, <code>ClosedArrow</code>, <code>Butt</code>, <code>ROpenArrow</code>, <code>RClosedArrow</code>, <code>Slash</code>).</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;arrow&quot;, &quot;page&quot;: 1, &quot;from&quot;: [440, 165], &quot;to&quot;: [440, 192]}
+</code></pre>
+<h3 class="ref">펜 (<code>ink</code>)</h3>
+<p><code>paths</code>: 획 목록, 획마다 쪽 좌표 점 두 개 이상 <code>[[x, y], [x, y], ...]</code>. PDF 좌표로는 <code>"ink": {"strokes": [[x1, y1, x2, y2, ...]]}</code>.</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;ink&quot;, &quot;page&quot;: 1, &quot;paths&quot;: [[[500, 250], [520, 240], [540, 260]]]}
+</code></pre>
+<h3 class="ref">스탬프 (<code>stamp</code>)</h3>
+<p>원천은 하나만: <code>text</code>(짧은 글자 스탬프, 둥근 테두리; <code>color</code> 기본 <code>#D32F2F</code>, <code>font_size</code> 기본 18), <code>image</code>(PNG·JPEG 경로, <code>transparent_white</code>: 흰 바탕 투명), <code>crop</code>(<code>{"file": "다른.pdf", "page": 3, "box": [x0, y0, x1, y1], "dpi": 300}</code>: 다른 PDF 쪽의 일부를 그림으로). 위치는 <code>at</code>(+ <code>width</code> 또는 <code>height</code>, 비율 유지) 또는 <code>box</code>. <code>name</code>으로 스탬프 이름을 줄 수 있습니다.</p>
+<pre><code class="language-json">{&quot;type&quot;: &quot;stamp&quot;, &quot;page&quot;: 1, &quot;text&quot;: &quot;확인&quot;, &quot;at&quot;: [480, 760]}
+{&quot;type&quot;: &quot;stamp&quot;, &quot;page&quot;: 2, &quot;image&quot;: &quot;서명.png&quot;, &quot;at&quot;: [400, 700], &quot;width&quot;: 120}
+</code></pre>
+<h3 class="ref">수정·삭제</h3>
+<p><code>update</code>는 바꿀 필드만 줍니다. 위치 단축 필드(<code>at</code>, <code>box</code>, <code>from</code>/<code>to</code>, <code>paths</code>, <code>arrow_to</code>)도 쓸 수 있고, 타자기의 <code>at</code>에 <code>width</code>가 없으면 원래 폭을 유지합니다. 종류와 쪽은 바꿀 수 없습니다.</p>
+<pre><code class="language-json">{&quot;op&quot;: &quot;update&quot;, &quot;id&quot;: &quot;obj:11:0&quot;, &quot;contents&quot;: &quot;고친 메모&quot;, &quot;style&quot;: {&quot;text_color&quot;: &quot;#D32F2F&quot;}}
+{&quot;op&quot;: &quot;update&quot;, &quot;id&quot;: &quot;obj:14:0&quot;, &quot;box&quot;: [380, 190, 490, 220]}
+{&quot;op&quot;: &quot;delete&quot;, &quot;id&quot;: &quot;obj:16:0&quot;}
+</code></pre>
+<h3 class="ref">쪽 작업 (<code>pages</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>op</th>
+<th>필드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>rotate</code></td>
+<td><code>pages</code>, <code>by</code>(시계 방향, 90의 배수, 기본 90)</td>
+</tr>
+<tr>
+<td><code>delete</code></td>
+<td><code>pages</code>(모든 쪽은 지울 수 없음)</td>
+</tr>
+<tr>
+<td><code>move</code></td>
+<td><code>pages</code> + <code>before</code>/<code>after</code>(쪽 번호) 또는 <code>at</code>(<code>"start"</code>/<code>"end"</code>)</td>
+</tr>
+<tr>
+<td><code>insert_blank</code></td>
+<td>위치(<code>before</code>/<code>after</code>/<code>at</code>, 기본 맨 끝), <code>count</code>(1–100), <code>size</code>(<code>"like"</code> 기준 쪽과 같게(기본), <code>A4</code>, <code>A4-landscape</code>, <code>A3</code>, <code>letter</code>, <code>4:3</code>, <code>16:9</code>, <code>[w, h]</code>)</td>
+</tr>
+<tr>
+<td><code>duplicate</code></td>
+<td><code>pages</code>(바로 뒤에 복제)</td>
+</tr>
+<tr>
+<td><code>import</code></td>
+<td><code>file</code>(다른 PDF), <code>pages</code>(기본 전체), <code>subset</code>(<code>all</code>/<code>odd</code>/<code>even</code>), 위치(기본 맨 끝), <code>annotations</code>(<code>copy</code> 기본/<code>none</code>/<code>flatten</code>), <code>fit</code>(<code>true</code>면 기준 쪽 크기에 맞춤), <code>bookmarks</code>(<code>related</code> 기본/<code>none</code>/<code>all</code>), <code>root_bookmark</code>(<code>true</code>면 파일 이름, 문자열이면 그 제목)</td>
+</tr>
+<tr>
+<td><code>scale_content</code></td>
+<td><code>pages</code>, <code>scale</code>(0.05–20) + <code>anchor</code>(<code>center</code> 기본, <code>top-left</code>, <code>top</code>, <code>top-right</code>, <code>left</code>, <code>right</code>, <code>bottom-left</code>, <code>bottom</code>, <code>bottom-right</code>) 또는 <code>box</code>(쪽 좌표 영역에 비율 유지로 맞춤). 쪽 크기는 그대로, 주석도 함께 움직임(<code>"annotations": false</code>면 제자리). 필기 여백을 만들 때 씁니다</td>
+</tr>
+</tbody>
+</table>
+<p><code>pages</code> 값은 <code>"3"</code>, <code>"2-4,7"</code>처럼 씁니다.</p>
+<pre><code class="language-json">{
+  &quot;pages&quot;: [
+    {&quot;op&quot;: &quot;import&quot;, &quot;file&quot;: &quot;부록.pdf&quot;, &quot;pages&quot;: &quot;1-2&quot;, &quot;at&quot;: &quot;end&quot;},
+    {&quot;op&quot;: &quot;insert_blank&quot;, &quot;after&quot;: 1, &quot;size&quot;: &quot;A4&quot;},
+    {&quot;op&quot;: &quot;scale_content&quot;, &quot;pages&quot;: &quot;1&quot;, &quot;scale&quot;: 0.8, &quot;anchor&quot;: &quot;top-left&quot;}
+  ],
+  &quot;changes&quot;: [
+    {&quot;type&quot;: &quot;typewriter&quot;, &quot;page&quot;: 1, &quot;at&quot;: [480, 40], &quot;width&quot;: 110, &quot;contents&quot;: &quot;여백 메모&quot;, &quot;wrap&quot;: true}
+  ]
+}
+</code></pre>
+<h3 class="ref">제한</h3>
+<ul>
+<li>회전된 쪽(90°·180°·270°)에는 <code>at</code>·<code>box</code>로 메모(타자기·텍스트 상자·콜아웃)를 만들 수 없습니다. 편집 엔진이 메모 글자를 쪽 회전 없이 그리므로 글자가 옆으로 눕습니다. 먼저 <code>rotate</code>로 쪽을 0°로 돌리거나, PDF 좌표 <code>rect</code>로 직접 지정합니다. 형광펜·도형·선은 회전된 쪽에서도 됩니다.</li>
+<li>쪽 본문 개체(글자·그림) 자체를 옮기거나 지우는 기능(<code>content_edits</code>)과 벡터 잘라내기 스탬프(<code>crop</code>의 <code>vector</code>)는 이 프로그램에 없습니다.</li>
+<li>암호가 걸린 PDF는 열지 않습니다.</li>
+<li>서식 있는 메모(PDF-XChange에서 글꼴·색을 부분적으로 바꾼 메모)는 형식을 그대로 지킬 수 없으면 수정을 거부합니다. 이때 원본은 바뀌지 않습니다.</li>
+</ul>
+</main>
+<footer><div class="wrap">
+ <span>PDF 편집기</span>
+ <a href="privacy.html">개인정보처리방침</a>
+ <a href="licenses.txt">오픈소스 라이선스</a>
+ <a href="mailto:forshare27467@gmail.com">forshare27467@gmail.com</a>
+</div></footer>
+</body>
+</html>
