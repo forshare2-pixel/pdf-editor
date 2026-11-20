@@ -55,3 +55,18 @@ footer a{color:var(--sub)}
 .doc ol{padding-left:22px}.doc ol li{margin:6px 0}
 .doc h3{font-size:15px;margin:26px 0 6px}
 .doc h4{font-size:14px;margin:18px 0 4px}
+.ai{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:44px;align-items:start}
+.ai-lead{margin:0 0 18px;color:#333a45}
+.ask{margin:0 0 26px;padding:14px 18px;border-left:3px solid var(--accent);background:var(--soft);border-radius:0 6px 6px 0;color:var(--ink);font-size:15px}
+.ai h3{font-size:16px;margin:0 0 8px}
+.ai .notes{margin:0 0 26px}
+.steps{margin:0 0 16px;padding-left:22px;font-size:15px;color:#333a45}
+.steps li{margin:5px 0}
+.steps pre,.ai pre{background:var(--soft);border-radius:6px;padding:10px 12px;overflow-x:auto;margin:8px 0 2px}
+.steps pre code{color:#1f2430;word-break:normal;white-space:pre}
+.ai-shot{margin:0}
+figcaption{font-size:13px;color:var(--sub);padding:9px 14px;border-top:1px solid var(--line);background:#fff}
+.ai-doc-shot{max-width:420px;margin:24px 0 8px}
+@media(max-width:760px){.ai{grid-template-columns:1fr;gap:28px}}
+.ai>*{min-width:0}
+.steps pre code,.doc pre code{white-space:pre-wrap;word-break:break-all}
