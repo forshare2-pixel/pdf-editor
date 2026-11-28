@@ -77,3 +77,36 @@ figcaption{font-size:13px;color:var(--sub);padding:9px 14px;border-top:1px solid
 .guide .ask{background:#fff;margin:8px 0 2px}
 .guide .meta{margin-bottom:0}
 @media(max-width:760px){.btn-lg{display:block;width:100%;text-align:center}.guide{padding:18px 16px}}
+
+/* 첫 화면(2026-11-28): 제목·내려받기 옆에 편집기 화면을 크게, 기능은 칸으로 나눈 표 */
+.hero{padding:0;background:var(--soft);border-bottom:1px solid var(--line);overflow:hidden}
+.hero-in{display:grid;grid-template-columns:420px minmax(0,1fr);gap:48px;align-items:center;padding-top:56px}
+.hero-copy{padding-bottom:56px}
+.hero h1{font-size:42px;line-height:1.22;font-weight:800;letter-spacing:-.03em;margin:0 0 16px;text-wrap:balance}
+.hero .lead{font-size:17px;margin:0 0 28px;max-width:none}
+.hero .get{flex-direction:column;align-items:flex-start;gap:10px}
+.hero .btn-lg{display:inline-flex;align-items:center;gap:10px}
+.hero .btn-lg svg{width:20px;height:20px}
+.hero .meta a{color:var(--sub);text-decoration:underline;text-underline-offset:3px}
+.hero .meta a:hover{color:var(--accent)}
+.hero-shot{align-self:end;margin:0 -220px 0 0;border-bottom:0;border-radius:10px 10px 0 0;background:#fff;box-shadow:0 24px 60px -30px rgba(18,20,26,.45)}
+.hero+section{border-top:0}
+.features{gap:0;border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.features li{padding:20px 20px 22px;border-left:1px solid var(--line);border-top:1px solid var(--line)}
+.features li:nth-child(3n+1){border-left:0}
+.features li:nth-child(-n+3){border-top:0}
+.features svg{display:block;width:22px;height:22px;color:var(--accent);margin-bottom:10px}
+@media(max-width:900px){
+ .hero-in{grid-template-columns:1fr;gap:28px;padding-top:36px}
+ .hero-copy{padding-bottom:0}
+ .hero h1{font-size:32px}
+ .hero-shot{margin-right:-90px}
+}
+@media(max-width:760px){
+ .hero .btn-lg{display:flex;justify-content:center}
+ .hero .get{align-items:stretch}
+ .features li,.features li:nth-child(3n+1){border-left:0;border-top:1px solid var(--line)}
+ .features li:first-child{border-top:0}
+}
+.brand,nav a{white-space:nowrap}
+@media(max-width:440px){header.top .wrap{gap:12px;padding:0 16px}nav{gap:12px;font-size:13.5px}}
